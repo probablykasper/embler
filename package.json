@@ -1,9 +1,9 @@
 {
-  "name": "packagr",
+  "name": "pakager",
   "version": "1.0.0",
   "main": "./build.js",
   "bin": {
-    "packagr": "./build.js"
+    "pakager": "./build.js"
   },
   "scripts": {
     "build": "electron-builder build"

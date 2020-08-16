@@ -6,7 +6,7 @@ const fs = require('fs')
 const plist = require('simple-plist')
 const Joi = require('joi');
 
-const packagrPjson = require('./package.json')
+const pakagerPjson = require('./package.json')
 
 const dir = process.cwd()
 const packageJsonPath = path.join(dir, 'package.json')
@@ -20,7 +20,7 @@ log.err = function (...msg) {
   process.exit(1)
 }
 
-log('Packagr', packagrPjson.version)
+log('Pakager', pakagerPjson.version)
 
 function parseOptions() {
   if (fs.existsSync(packageJsonPath)) log(`Located package.json (${packageJsonPath})`)
@@ -30,7 +30,7 @@ function parseOptions() {
     name: Joi.string().required(),
     version: Joi.string(),
     author: Joi.string(),
-    packagr: Joi.object()
+    pakager: Joi.object()
       .required()
       .keys({
         name: Joi.string().default(Joi.ref('/name')),
@@ -38,7 +38,7 @@ function parseOptions() {
           return helpers.state.ancestors[1].name
         }),
         appId: Joi.string().default((parent, helpers) => {
-          return 'com.packagr.'+helpers.state.ancestors[1].name
+          return 'com.pakager.'+helpers.state.ancestors[1].name
         }),
         version: Joi.string().default(Joi.ref('/version')),
         author: Joi.string().default(Joi.ref('/author')),
@@ -57,9 +57,9 @@ function parseOptions() {
           })
       })
   })
-  .or('name', 'packagr.name')
-  .or('author', 'packagr.author')
-  .or('version', 'packagr.version')
+  .or('name', 'pakager.name')
+  .or('author', 'pakager.author')
+  .or('version', 'pakager.version')
 
   const vResult = schema.validate(packageJson, { allowUnknown: true, abortEarly: false })
   if (vResult.error) {
