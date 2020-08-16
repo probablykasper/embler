@@ -65,7 +65,7 @@ module.exports.macBuild = function(options) {
   const appPath = path.join(distDir, `${options.realName}.app`)
   const ContentsPath = path.join(distDir, `${options.realName}.app/Contents`)
   const ResourcesPath = path.join(distDir, `${options.realName}.app/Contents/Resources`)
-  const MacOSPath = path.join(distDir, `${options.realName}.app/Contents/Resources/MacOS`)
+  const MacOSPath = path.join(distDir, `${options.realName}.app/Contents/MacOS`)
   
   // delete existing .app
   if (fs.existsSync(appPath) && fs.statSync(appPath).isDirectory()) {
@@ -75,6 +75,7 @@ module.exports.macBuild = function(options) {
   }
 
   // create .app folders
+  fs.mkdirSync(ResourcesPath, { recursive: true })
   fs.mkdirSync(MacOSPath, { recursive: true })
 
   // copy over icon
