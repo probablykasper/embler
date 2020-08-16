@@ -1,30 +1,23 @@
-#!/usr/bin/env node
-
 const process = require('process')
 const path = require('path')
 const fs = require('fs')
 const plist = require('simple-plist')
-const Joi = require('joi');
 
-const pakagerPjson = require('./package.json')
+const Joi = require('./joi.js')
+const pakagerPjson = require('../package.json')
+const log = require('./log.js')
 
 const dir = process.cwd()
-const packageJsonPath = path.join(dir, 'package.json')
-const packageJson = require(packageJsonPath)
 const year = new Date().getFullYear()
-
-function log(...msg) { console.log(...msg) }
-log.err = function (...msg) {
-  console.log('Error:', ...msg)
-  console.log('')
-  process.exit(1)
-}
 
 log('Pakager', pakagerPjson.version)
 
 function parseOptions() {
-  if (fs.existsSync(packageJsonPath)) log(`Located package.json (${packageJsonPath})`)
-  else log.err(`package.json not found (${packageJsonPath})`)
+  const packageJsonPath = path.join(dir, 'package.json')
+  const packageJson = require(packageJsonPath)
+  if (!fs.existsSync(packageJsonPath)) {
+    log.err(`package.json not found (${packageJsonPath})`)
+  }
 
   const schema = Joi.object({
     name: Joi.string().required(),
@@ -51,7 +44,7 @@ function parseOptions() {
           .required()
           .keys({
             category: Joi.string().required(),
-            icon: Joi.string(),
+            icon: Joi.path().existingFile(),
             targets: Joi.array().items('app').default(['app']),
             backgroundApp: Joi.bool().default(false),
           })
@@ -65,11 +58,12 @@ function parseOptions() {
   if (vResult.error) {
     let errorMsg = ''
     for (const err of vResult.error.details) {
+      // log(err)
       errorMsg += `\n  - property ${err.message}`
     }
     log.err('Invalid package.json config:' + errorMsg)
   }
-  return vResult.value
+  return vResult.value.pakager
 }
 
 const options = parseOptions()
