@@ -107,9 +107,9 @@ module.exports.macBuild = function(options) {
     CFBundlePackageType: 'APPL',
     CFBundleShortVersionString: options.version,
     CFBundleVersion: options.version,
-    NSHumanReadableCopyright: `Copyright © ${year} ${options.author}`,
+    NSHumanReadableCopyright: options.copyright,
     LSUIElement: options.backgroundApp,
-    NSRequiresAquaSystemAppearance: !darkModeSupport,
+    NSRequiresAquaSystemAppearance: !options.darkModeSupport,
   }
   if (options.category) data.LSApplicationCategoryType = options.category
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
