@@ -77,13 +77,9 @@ module.exports.macBuild = function(options) {
   fs.mkdirSync(resourcesPath, { recursive: true })
 
   // copy over icon
-  const iconFileName = 'app'+path.extname(options.mac.icon)
-  const iconPath = path.resolve(resourcesPath, iconFileName)
-  fs.copyFileSync(options.mac.icon, iconPath)
-
   if (options.mac.icon) {
     const inputIcon = fs.readFileSync(options.mac.icon)
-    const iconDestPath = path.resolve(resourcesPath, iconFileName)
+    const iconDestPath = path.resolve(resourcesPath, 'app.icns')
     if (options.mac.icon.endsWith('.png')) {
       const output = png2icons.createICNS(inputIcon, png2icons.BICUBIC, 0)
       if (output) fs.writeFileSync(iconDestPath, output)
@@ -93,6 +89,7 @@ module.exports.macBuild = function(options) {
     }
   }
 
+  
   // copy over binary
   // await exec([ '.', '--target', 'macos', '--output', `${contentsPath}/MacOS/${options.appName}` ])
 
@@ -100,7 +97,7 @@ module.exports.macBuild = function(options) {
     // CFBundleDevelopmentRegion
     CFBundleDisplayName: options.realName,
     CFBundleExecutable: options.realName,
-    CFBundleIconFile: iconFileName,
+    CFBundleIconFile: 'app.icns',
     CFBundleIdentifier: options.appId,
     CFBundleInfoDictionaryVersion: '6.0',
     // CFBundleName

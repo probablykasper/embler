@@ -13,7 +13,7 @@
     "version": "1.0.0",
     "mac": {
       "binary": "dist/test-bin-macos",
-      "icon": "icon.icnsx",
+      "icon": "icon.png",
       "category": "public.app-category.utilities"
     }
   },
