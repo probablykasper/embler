@@ -17,14 +17,14 @@ module.exports.parseOptions = function(packageJson) {
       .required()
       .keys({
         name: Joi.string().default(Joi.ref('/name')),
+        version: Joi.string().default(Joi.ref('/version')),
+        author: Joi.string().default(Joi.ref('/author')),
         realName: Joi.string().default((parent, helpers) => {
           return helpers.state.ancestors[1].name
         }),
         appId: Joi.string().default((parent, helpers) => {
           return 'com.pakager.'+helpers.state.ancestors[1].name
         }),
-        version: Joi.string().default(Joi.ref('/version')),
-        author: Joi.string().default(Joi.ref('/author')),
         copyright: Joi.string().default((parent, helpers) => {
           return `Copyright © ${year} ${parent.author}`
         }),
@@ -34,7 +34,7 @@ module.exports.parseOptions = function(packageJson) {
           .required()
           .keys({
             binary: Joi.path().existingFile().required(),
-            category: Joi.string().required(),
+            category: Joi.string(),
             icon: Joi.path().existingFile().endsWith('png', 'icns'),
             // icon: Joi.path().existingFile().pattern(/\.(zip|png)$/).message('{{#}}'),
             formats: Joi.array().items('app').default(['app']),
@@ -105,8 +105,9 @@ module.exports.macBuild = function(options) {
     CFBundleShortVersionString: options.version,
     CFBundleVersion: options.version,
     NSHumanReadableCopyright: `Copyright © ${year} ${options.author}`,
+    LSUIElement: options.backgroundApp === true,
   }
-  if (options.backgroundApp === true) data.LSUIElement = true
+  if (options.category) data.LSApplicationCategoryType = options.category
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
     console.log(key, value)
     data[key] = value

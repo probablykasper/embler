@@ -17,7 +17,7 @@
       "category": "public.app-category.utilities"
     }
   },
-  "dependencies": {
+  "devDependencies": {
     "pakager": "file:..",
     "pkg": "^4.4.9"
   }
