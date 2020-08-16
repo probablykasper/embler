@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-require('./src/index.js')
+const main = require('./main.js')
+main.build('package.json')

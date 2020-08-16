@@ -1,20 +1,24 @@
 {
   "name": "test",
   "description": "",
-  "main": "index.js",
+  "bin": "index.js",
   "scripts": {
-    "build": "pakager"
+    "build": "pkg . --target macos --output dist/test-bin-macos && pakager",
+    "compile": "pkg . --target macos --output dist/test-bin-macos",
+    "pack": "pakager"
   },
   "license": "ISC",
   "pakager": {
     "author": "kasper.space",
     "version": "1.0.0",
     "mac": {
-      "icon": "icon-test.png",
+      "binary": "dist/test-bin-macos",
+      "icon": "icon.icnsx",
       "category": "public.app-category.utilities"
     }
   },
   "dependencies": {
-    "pakager": "file:.."
+    "pakager": "file:..",
+    "pkg": "^4.4.9"
   }
 }
