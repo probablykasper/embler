@@ -39,6 +39,7 @@ module.exports.parseOptions = function(packageJson) {
             // icon: Joi.path().existingFile().pattern(/\.(zip|png)$/).message('{{#}}'),
             formats: Joi.array().items('app').default(['app']),
             backgroundApp: Joi.bool().default(false),
+            darkModeSupport: Joi.bool().default(true),
             customInfo: Joi.object().default({}),
           })
       })
@@ -105,7 +106,8 @@ module.exports.macBuild = function(options) {
     CFBundleShortVersionString: options.version,
     CFBundleVersion: options.version,
     NSHumanReadableCopyright: `Copyright © ${year} ${options.author}`,
-    LSUIElement: options.backgroundApp === true,
+    LSUIElement: options.backgroundApp,
+    NSRequiresAquaSystemAppearance: !darkModeSupport,
   }
   if (options.category) data.LSApplicationCategoryType = options.category
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
