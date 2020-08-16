@@ -92,7 +92,9 @@ module.exports.macBuild = function(options) {
 
   
   // copy over binary
-  // await exec([ '.', '--target', 'macos', '--output', `${contentsPath}/MacOS/${options.appName}` ])
+  // const inputBinary = fs.readFileSync(options.mac.binary)
+  // fs.writeFileSync(`${ContentsPath}/MacOS/${options.realName}`, inputBinary)
+  fs.copyFileSync(options.mac.binary, `${MacOSPath}/${options.realName}`)
 
   const data = {
     // CFBundleDevelopmentRegion
