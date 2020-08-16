@@ -1,0 +1,17 @@
+{
+  "name": "packagr",
+  "version": "1.0.0",
+  "main": "./build.js",
+  "bin": {
+    "packagr": "./build.js"
+  },
+  "scripts": {
+    "build": "electron-builder build"
+  },
+  "dependencies": {
+    "electron-builder": "^22.8.0",
+    "joi": "^17.2.0",
+    "jsonschema": "^1.2.6",
+    "simple-plist": "^1.1.0"
+  }
+}

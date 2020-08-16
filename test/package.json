@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "packagr"
+  },
+  "license": "ISC",
+  "packagr": {
+    "mac": {
+      "category": "public.app-category.utilities"
+    }
+  },
+  "dependencies": {
+    "packagr": "file:.."
+  }
+}
