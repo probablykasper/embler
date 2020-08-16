@@ -3,12 +3,10 @@ const fs = require('fs')
 const png2icons = require('png2icons')
 const plist = require('simple-plist')
 
-const Joi = require('./joi.js')
 const log = require('./log.js')
 
-const year = new Date().getFullYear()
-
-module.exports.parseOptions = function(packageJson) {
+module.exports.parseOptions = function(packageJson, workingDir) {
+  const Joi = require('./joi.js').prepare(workingDir)
   const schema = Joi.object({
     name: Joi.string(),
     version: Joi.string(),
@@ -26,9 +24,10 @@ module.exports.parseOptions = function(packageJson) {
           return 'com.pakager.'+helpers.state.ancestors[1].name
         }),
         copyright: Joi.string().default((parent, helpers) => {
+          const year = new Date().getFullYear()
           return `Copyright © ${year} ${parent.author}`
         }),
-        outputDir: Joi.string().default('dist'),
+        outputDir: Joi.path().default(path.resolve(workingDir, 'dist')),
         backgroundApp: Joi.bool().default(false),
         mac: Joi.object()
           .required()
@@ -64,8 +63,9 @@ module.exports.macBuild = function(options) {
 
   const distDir = options.outputDir
   const appPath = path.join(distDir, `${options.realName}.app`)
-  const contentsPath = path.join(distDir, `${options.realName}.app/Contents`)
-  const resourcesPath = path.join(distDir, `${options.realName}.app/Contents/Resources`)
+  const ContentsPath = path.join(distDir, `${options.realName}.app/Contents`)
+  const ResourcesPath = path.join(distDir, `${options.realName}.app/Contents/Resources`)
+  const MacOSPath = path.join(distDir, `${options.realName}.app/Contents/Resources/MacOS`)
   
   // delete existing .app
   if (fs.existsSync(appPath) && fs.statSync(appPath).isDirectory()) {
@@ -75,12 +75,12 @@ module.exports.macBuild = function(options) {
   }
 
   // create .app folders
-  fs.mkdirSync(resourcesPath, { recursive: true })
+  fs.mkdirSync(MacOSPath, { recursive: true })
 
   // copy over icon
   if (options.mac.icon) {
     const inputIcon = fs.readFileSync(options.mac.icon)
-    const iconDestPath = path.resolve(resourcesPath, 'app.icns')
+    const iconDestPath = path.resolve(ResourcesPath, 'app.icns')
     if (options.mac.icon.endsWith('.png')) {
       const output = png2icons.createICNS(inputIcon, png2icons.BICUBIC, 0)
       if (output) fs.writeFileSync(iconDestPath, output)
@@ -116,6 +116,6 @@ module.exports.macBuild = function(options) {
     console.log(key, value)
     data[key] = value
   }
-  plist.writeFileSync(`${contentsPath}/Info.plist`, data)
+  plist.writeFileSync(`${ContentsPath}/Info.plist`, data)
 
 }
