@@ -2,6 +2,7 @@
   "name": "menubartest",
   "bin": "index.js",
   "scripts": {
+    "lint": "eslint",
     "build": "pkg . --target macos --output dist/test-bin-macos && pakager",
     "compile": "pkg . --target macos --output dist/test-bin-macos",
     "pack": "pakager"
@@ -21,7 +22,8 @@
       "icon": "icon.png",
       "category": "public.app-category.utilities",
       "formats": [
-        "app"
+        "app",
+        "dmg"
       ],
       "darkModeSupport": true,
       "customInfo": {

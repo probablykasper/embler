@@ -23,7 +23,7 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
         appId: Joi.string().default((parent, helpers) => {
           return 'com.pakager.'+helpers.state.ancestors[1].name
         }),
-        copyright: Joi.string().default((parent, helpers) => {
+        copyright: Joi.string().default((parent) => {
           const year = new Date().getFullYear()
           return `Copyright © ${year} ${parent.author}`
         }),
@@ -35,15 +35,18 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
             binary: Joi.path().existingFile().required(),
             category: Joi.string(),
             icon: Joi.path().existingFile().endsWith('png', 'icns'),
-            formats: Joi.array().items('app').default(['app']),
+            formats: Joi.array()
+              .unique()
+              .items('app', 'dmg', 'app/dmg')
+              .default([ 'app' ]),
             darkModeSupport: Joi.bool().default(true),
             customInfo: Joi.object().default({}),
           })
       })
   })
-  .or('name', 'pakager.name')
-  .or('author', 'pakager.author')
-  .or('version', 'pakager.version')
+    .or('name', 'pakager.name')
+    .or('author', 'pakager.author')
+    .or('version', 'pakager.version')
 
   try {
     const vResult = await schema.validateAsync(packageJson, { allowUnknown: true, abortEarly: false })
@@ -51,53 +54,52 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
   } catch(err) {
     let errorMsg = ''
     for (const detail of err.details) {
-      log(detail)
       errorMsg += `\n  - property ${detail.message}`
     }
     log.err('Invalid package.json config:' + errorMsg)
   }
 }
 
-module.exports.macBuild = async function(options) {
+module.exports.buildMacApp = async function(options, paths) {
 
-  const distDir = options.outputDir
-  const appPath = path.join(distDir, `${options.realName}.app`)
-  const ContentsPath = path.join(distDir, `${options.realName}.app/Contents`)
-  const ResourcesPath = path.join(distDir, `${options.realName}.app/Contents/Resources`)
-  const MacOSPath = path.join(distDir, `${options.realName}.app/Contents/MacOS`)
+  // const distDir = options.outputDir
+  // const appPath = path.join(distDir, `${options.realName}.app`)
+  // const ContentsDir = path.join(distDir, `${options.realName}.app/Contents`)
+  // const ResourcesDir = path.join(distDir, `${options.realName}.app/Contents/Resources`)
+  // const MacOSDir = path.join(distDir, `${options.realName}.app/Contents/MacOS`)
+  // const iconPath = path.resolve(ResourcesDir, 'app.icns')
   
   // delete existing .app
   try {
-    const appPathStat = await fs.stat(appPath)
+    const appPathStat = await fs.stat(paths.appPath)
     if (appPathStat.isDirectory()) {
-      await fs.rmdir(appPath, { recursive: true })
+      await fs.rmdir(paths.appPath, { recursive: true })
     } else {
-      log.err(`Mac app path is a non-folder. Delete or move it manually (${appPath})`)
+      log.err(`Mac app path is a non-folder. Delete or move it manually (${paths.appPath})`)
     }
   } catch(err) {
     if (err.code !== 'ENOENT') log.err(err)
   }
 
   // create .app folders
-  await fs.mkdir(ResourcesPath, { recursive: true })
-  await fs.mkdir(MacOSPath, { recursive: true })
+  await fs.mkdir(paths.ResourcesDir, { recursive: true })
+  await fs.mkdir(paths.MacOSDir, { recursive: true })
 
   // copy over icon
   if (options.mac.icon) {
     const inputIcon = await fs.readFile(options.mac.icon)
-    const iconDestPath = path.resolve(ResourcesPath, 'app.icns')
     if (options.mac.icon.endsWith('.png')) {
       const output = png2icons.createICNS(inputIcon, png2icons.BICUBIC, 0)
-      if (output) await fs.writeFile(iconDestPath, output)
+      if (output) await fs.writeFile(paths.iconPath, output)
       else log.err('Failed to convert PNG app icon to ICNS')
     } else if (options.mac.icon.endsWith('.icns')) {
-      await fs.writeFile(inputIcon, output)
+      await fs.writeFile(inputIcon, paths.iconPath)
     }
   }
 
   
   // copy over binary
-  await fs.copyFile(options.mac.binary, `${MacOSPath}/${options.realName}`)
+  await fs.copyFile(options.mac.binary, `${paths.MacOSDir}/${options.realName}`)
 
   const data = {
     // CFBundleDevelopmentRegion
@@ -118,6 +120,23 @@ module.exports.macBuild = async function(options) {
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
     data[key] = value
   }
-  plist.writeFileSync(`${ContentsPath}/Info.plist`, data)
+  plist.writeFileSync(`${paths.ContentsDir}/Info.plist`, data)
 
+}
+
+module.exports.buildMac = async function(options) {
+
+  const paths = {}
+  paths.distDir = options.outputDir
+  paths.appPath = path.join(paths.distDir, `${options.realName}.app`)
+  paths.ContentsDir = path.join(paths.appPath, 'Contents')
+  paths.ResourcesDir = path.join(paths.appPath, 'Contents/Resources')
+  paths.MacOSDir = path.join(paths.appPath, 'Contents/MacOS')
+  paths.iconPath = path.join(paths.ResourcesDir, 'app.icns')
+  
+  await module.exports.buildMacApp(options, paths)
+}
+
+module.exports.build = async function(options) {
+  if (options.mac) module.exports.buildMac(options)
 }

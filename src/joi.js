@@ -2,7 +2,7 @@ const JoiBase = require('joi')
 const path = require('path')
 const fs = require('fs')
 
-module.exports.prepare = () => {
+module.exports.prepare = (workingDir) => {
   return JoiBase.extend((Joi) => {
     return {
       type: 'string',
@@ -18,8 +18,8 @@ module.exports.prepare = () => {
           args: [
             { name: 'endings', assert: Joi.array() },
           ],
-          validate(value, helpers, args, options) {
-            for (ending of args.endings) {
+          validate(value, helpers, args) {
+            for (const ending of args.endings) {
               if (value.endsWith(ending)) return value
             }
             return helpers.error('string.endsWith', { endings: args.endings })
@@ -35,13 +35,13 @@ module.exports.prepare = () => {
         'path.existingFile': '{{#label}} path must be an existing file',
         'path.existingDir': '{{#label}} path must be an existing directory',
       },
-      validate(value, helpers) {
+      validate(value) {
         return { value: path.resolve(workingDir, value) }
       },
       rules: {
         existingFile: {
           method() { return this.$_addRule('existingFile') },
-          validate(value, helpers, args, options) {
+          validate(value, helpers) {
             if (!fs.existsSync(value)) return helpers.error('path.existingFile')
             if (!fs.statSync(value).isFile()) return helpers.error('path.existingFile')
             return value
@@ -49,7 +49,7 @@ module.exports.prepare = () => {
         },
         existingDir: {
           method() { return this.$_addRule('existingDir') },
-          validate(value, helpers, args, options) {
+          validate(value, helpers) {
             if (!fs.existsSync(value)) return helpers.error('path.existingDir')
             if (!fs.statSync(value).isDirectory()) return helpers.error('path.existingDir')
             return value

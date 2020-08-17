@@ -3,7 +3,7 @@ const process = require('process')
 
 const version = require('./package.json').version
 const log = require('./src/log.js')
-const { parseOptions, macBuild } = require('./src/build.js')
+const buildJS = require('./src/build.js')
 
 function getOptionsFromFile(packageJsonPath) {
   try {
@@ -21,7 +21,7 @@ function getOptionsFromFile(packageJsonPath) {
 async function start(options) {
   log.info('Pakager ' + version)
 
-  workingDir = process.cwd()
+  let workingDir = process.cwd()
 
   if (typeof options === 'string') {
     log.info(`Loading config file (${options})`)
@@ -34,9 +34,9 @@ async function start(options) {
     log.info('Loading config')
   }
 
-  const parsedOptions = await parseOptions(options, workingDir)
+  const parsedOptions = await buildJS.parseOptions(options, workingDir)
   log.info('Packing macOS app')
-  await macBuild(parsedOptions)
+  await buildJS.build(parsedOptions)
 }
 
 async function build(options) {
