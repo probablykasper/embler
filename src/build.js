@@ -1,11 +1,11 @@
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs').promises
 const png2icons = require('png2icons')
 const plist = require('simple-plist')
 
 const log = require('./log.js')
 
-module.exports.parseOptions = function(packageJson, workingDir) {
+module.exports.parseOptions = async function(packageJson, workingDir) {
   const Joi = require('./joi.js').prepare(workingDir)
   const schema = Joi.object({
     name: Joi.string(),
@@ -45,19 +45,20 @@ module.exports.parseOptions = function(packageJson, workingDir) {
   .or('author', 'pakager.author')
   .or('version', 'pakager.version')
 
-  const vResult = schema.validate(packageJson, { allowUnknown: true, abortEarly: false })
-  if (vResult.error) {
+  try {
+    const vResult = await schema.validateAsync(packageJson, { allowUnknown: true, abortEarly: false })
+    return vResult.pakager
+  } catch(err) {
     let errorMsg = ''
-    for (const err of vResult.error.details) {
-      // log(err)
-      errorMsg += `\n  - property ${err.message}`
+    for (const detail of err.details) {
+      log(detail)
+      errorMsg += `\n  - property ${detail.message}`
     }
     log.err('Invalid package.json config:' + errorMsg)
   }
-  return vResult.value.pakager
 }
 
-module.exports.macBuild = function(options) {
+module.exports.macBuild = async function(options) {
 
   const distDir = options.outputDir
   const appPath = path.join(distDir, `${options.realName}.app`)
@@ -66,34 +67,37 @@ module.exports.macBuild = function(options) {
   const MacOSPath = path.join(distDir, `${options.realName}.app/Contents/MacOS`)
   
   // delete existing .app
-  if (fs.existsSync(appPath) && fs.statSync(appPath).isDirectory()) {
-    fs.rmdirSync(appPath, { recursive: true })
-  } else if (fs.existsSync(appPath)) {
-    log.err(`Mac app path is a non-folder. Delete or move it manually (${appPath})`)
+  try {
+    const appPathStat = await fs.stat(appPath)
+    if (appPathStat.isDirectory()) {
+      await fs.rmdir(appPath, { recursive: true })
+    } else {
+      log.err(`Mac app path is a non-folder. Delete or move it manually (${appPath})`)
+    }
+  } catch(err) {
+    if (err.code !== 'ENOENT') log.err(err)
   }
 
   // create .app folders
-  fs.mkdirSync(ResourcesPath, { recursive: true })
-  fs.mkdirSync(MacOSPath, { recursive: true })
+  await fs.mkdir(ResourcesPath, { recursive: true })
+  await fs.mkdir(MacOSPath, { recursive: true })
 
   // copy over icon
   if (options.mac.icon) {
-    const inputIcon = fs.readFileSync(options.mac.icon)
+    const inputIcon = await fs.readFile(options.mac.icon)
     const iconDestPath = path.resolve(ResourcesPath, 'app.icns')
     if (options.mac.icon.endsWith('.png')) {
       const output = png2icons.createICNS(inputIcon, png2icons.BICUBIC, 0)
-      if (output) fs.writeFileSync(iconDestPath, output)
+      if (output) await fs.writeFile(iconDestPath, output)
       else log.err('Failed to convert PNG app icon to ICNS')
     } else if (options.mac.icon.endsWith('.icns')) {
-      fs.writeFileSync(inputIcon, output)
+      await fs.writeFile(inputIcon, output)
     }
   }
 
   
   // copy over binary
-  // const inputBinary = fs.readFileSync(options.mac.binary)
-  // fs.writeFileSync(`${ContentsPath}/MacOS/${options.realName}`, inputBinary)
-  fs.copyFileSync(options.mac.binary, `${MacOSPath}/${options.realName}`)
+  await fs.copyFile(options.mac.binary, `${MacOSPath}/${options.realName}`)
 
   const data = {
     // CFBundleDevelopmentRegion
@@ -112,7 +116,6 @@ module.exports.macBuild = function(options) {
   }
   if (options.mac.category) data.LSApplicationCategoryType = options.mac.category
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
-    console.log(key, value)
     data[key] = value
   }
   plist.writeFileSync(`${ContentsPath}/Info.plist`, data)

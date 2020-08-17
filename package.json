@@ -6,6 +6,7 @@
     "pakager": "bin.js"
   },
   "dependencies": {
+    "chalk": "^4.1.0",
     "joi": "^17.2.0",
     "jsonschema": "^1.2.6",
     "png2icons": "^2.0.1",
