@@ -34,9 +34,10 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
           .keys({
             binary: Joi.path().existingFile().required(),
             category: Joi.string(),
+            dmgBackground: Joi.path().existingFile()
+              .default(path.resolve(__dirname, '../assets/dmg-background.png')),
             icon: Joi.path().existingFile().endsWith('png', 'icns'),
-            formats: Joi.array()
-              .unique()
+            formats: Joi.array().unique()
               .items('app', 'dmg', 'app/dmg')
               .default([ 'app' ]),
             darkModeSupport: Joi.bool().default(true),
@@ -139,13 +140,16 @@ module.exports.buildMacAppDmg = async function(options, paths) {
       specification: {
         title: options.realName,
         icon: paths.icon,
+        'icon-size': 160,
+        window: { size: { width: 660, height: 400 } },
+        background: options.mac.dmgBackground,
         contents: [
-          { x: 192, y: 344, type: 'file', path: paths.app },
-          { x: 448, y: 344, type: 'link', path: '/Applications' },
-          { x: 100, y: 100, type: 'position', path: '.background' },
-          { x: 100, y: 100, type: 'position', path: '.DS_Store' },
-          { x: 100, y: 100, type: 'position', path: '.Trashes' },
-          { x: 100, y: 100, type: 'position', path: '.VolumeIcon.icns' },
+          { x: 180, y: 170, type: 'file', path: paths.app },
+          { x: 480, y: 170, type: 'link', path: '/Applications' },
+          { x: 180, y: 480, type: 'position', path: '.background' },
+          { x: 180, y: 480, type: 'position', path: '.VolumeIcon.icns' },
+          { x: 180, y: 480, type: 'position', path: '.DS_Store' },
+          { x: 180, y: 480, type: 'position', path: '.Trashes' },
         ],
         // background: ''
       },
