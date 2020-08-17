@@ -35,9 +35,7 @@ module.exports.parseOptions = function(packageJson, workingDir) {
             binary: Joi.path().existingFile().required(),
             category: Joi.string(),
             icon: Joi.path().existingFile().endsWith('png', 'icns'),
-            // icon: Joi.path().existingFile().pattern(/\.(zip|png)$/).message('{{#}}'),
             formats: Joi.array().items('app').default(['app']),
-            backgroundApp: Joi.bool().default(false),
             darkModeSupport: Joi.bool().default(true),
             customInfo: Joi.object().default({}),
           })
@@ -110,9 +108,9 @@ module.exports.macBuild = function(options) {
     CFBundleVersion: options.version,
     NSHumanReadableCopyright: options.copyright,
     LSUIElement: options.backgroundApp,
-    NSRequiresAquaSystemAppearance: !options.darkModeSupport,
+    NSRequiresAquaSystemAppearance: !options.mac.darkModeSupport,
   }
-  if (options.category) data.LSApplicationCategoryType = options.category
+  if (options.mac.category) data.LSApplicationCategoryType = options.mac.category
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
     console.log(key, value)
     data[key] = value

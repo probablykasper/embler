@@ -1,6 +1,5 @@
 {
-  "name": "test",
-  "description": "",
+  "name": "menubartest",
   "bin": "index.js",
   "scripts": {
     "build": "pkg . --target macos --output dist/test-bin-macos && pakager",
@@ -9,19 +8,33 @@
   },
   "license": "ISC",
   "pakager": {
-    "author": "kasper.space",
+    "name": "menubar-test",
     "version": "1.0.0",
+    "author": "kasper.space",
+    "realName": "Menubar Test",
+    "appId": "com.example.menubar-test",
+    "copyright": "Copyright © 2020 kasper.space",
+    "outputDir": "dist",
+    "backgroundApp": true,
     "mac": {
       "binary": "dist/test-bin-macos",
       "icon": "icon.png",
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "formats": [
+        "app"
+      ],
+      "darkModeSupport": true,
+      "customInfo": {
+        "CFBundleDevelopmentRegion": "en"
+      }
     }
+  },
+  "dependencies": {
+    "7zip-bin": "^5.0.3",
+    "systray": "^1.0.5"
   },
   "devDependencies": {
     "pakager": "file:..",
     "pkg": "^4.4.9"
-  },
-  "dependencies": {
-    "systray": "^1.0.5"
   }
 }
