@@ -11,5 +11,8 @@
     "jsonschema": "^1.2.6",
     "png2icons": "^2.0.1",
     "simple-plist": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0"
   }
 }
