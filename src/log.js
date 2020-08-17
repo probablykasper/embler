@@ -16,6 +16,10 @@ log.warn = function(...msg) {
   console.log(chalk.yellow(symbol), ...msg)
 }
 
+log.success = function(...msg) {
+  console.log(chalk.green(symbol), ...msg)
+}
+
 log.err = function(...msg) {
   console.log(chalk.red(symbol), ...msg)
   console.log('')

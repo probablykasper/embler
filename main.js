@@ -35,8 +35,8 @@ async function start(options) {
   }
 
   const parsedOptions = await buildJS.parseOptions(options, workingDir)
-  log.info('Packing macOS app')
   await buildJS.build(parsedOptions)
+  log.success('Done')
 }
 
 async function build(options) {

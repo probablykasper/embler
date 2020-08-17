@@ -61,21 +61,14 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
 }
 
 module.exports.buildMacApp = async function(options, paths) {
-
-  // const distDir = options.outputDir
-  // const appPath = path.join(distDir, `${options.realName}.app`)
-  // const ContentsDir = path.join(distDir, `${options.realName}.app/Contents`)
-  // const ResourcesDir = path.join(distDir, `${options.realName}.app/Contents/Resources`)
-  // const MacOSDir = path.join(distDir, `${options.realName}.app/Contents/MacOS`)
-  // const iconPath = path.resolve(ResourcesDir, 'app.icns')
   
   // delete existing .app
   try {
-    const appPathStat = await fs.stat(paths.appPath)
+    const appPathStat = await fs.stat(paths.app)
     if (appPathStat.isDirectory()) {
-      await fs.rmdir(paths.appPath, { recursive: true })
+      await fs.rmdir(paths.app, { recursive: true })
     } else {
-      log.err(`Mac app path is a non-folder. Delete or move it manually (${paths.appPath})`)
+      log.err(`Output path exists, but is not a folder. Delete or move it manually (${paths.app})`)
     }
   } catch(err) {
     if (err.code !== 'ENOENT') log.err(err)
@@ -90,10 +83,10 @@ module.exports.buildMacApp = async function(options, paths) {
     const inputIcon = await fs.readFile(options.mac.icon)
     if (options.mac.icon.endsWith('.png')) {
       const output = png2icons.createICNS(inputIcon, png2icons.BICUBIC, 0)
-      if (output) await fs.writeFile(paths.iconPath, output)
+      if (output) await fs.writeFile(paths.icon, output)
       else log.err('Failed to convert PNG app icon to ICNS')
     } else if (options.mac.icon.endsWith('.icns')) {
-      await fs.writeFile(inputIcon, paths.iconPath)
+      await fs.writeFile(inputIcon, paths.icon)
     }
   }
 
@@ -124,19 +117,65 @@ module.exports.buildMacApp = async function(options, paths) {
 
 }
 
+module.exports.buildMacAppDmg = async function(options, paths) {
+
+  // delete existing .dmg
+  try {
+    const dmgPathStat = await fs.stat(paths.dmg)
+    if (dmgPathStat.isFile()) {
+      await fs.unlink(paths.dmg)
+    } else {
+      log.err(`Output path exists, but is not a file. Delete or move it manually (${paths.dmg})`)
+    }
+  } catch(err) {
+    if (err.code !== 'ENOENT') log.err(err)
+  }
+
+  const appdmg = require('appdmg')
+  await new Promise((resolve, reject) => {
+    const ee = appdmg({
+      target: paths.dmg,
+      basepath: __dirname,
+      specification: {
+        title: options.realName,
+        icon: paths.icon,
+        contents: [
+          { x: 192, y: 344, type: 'file', path: paths.app },
+          { x: 448, y: 344, type: 'link', path: '/Applications' },
+          { x: 100, y: 100, type: 'position', path: '.background' },
+          { x: 100, y: 100, type: 'position', path: '.DS_Store' },
+          { x: 100, y: 100, type: 'position', path: '.Trashes' },
+          { x: 100, y: 100, type: 'position', path: '.VolumeIcon.icns' },
+        ],
+        // background: ''
+      },
+    })
+    ee.on('finish', resolve)
+    ee.on('error', reject)
+  })
+}
+
 module.exports.buildMac = async function(options) {
+  const formats = options.mac.formats
 
   const paths = {}
   paths.distDir = options.outputDir
-  paths.appPath = path.join(paths.distDir, `${options.realName}.app`)
-  paths.ContentsDir = path.join(paths.appPath, 'Contents')
-  paths.ResourcesDir = path.join(paths.appPath, 'Contents/Resources')
-  paths.MacOSDir = path.join(paths.appPath, 'Contents/MacOS')
-  paths.iconPath = path.join(paths.ResourcesDir, 'app.icns')
+  paths.app = path.join(paths.distDir, `${options.realName}.app`)
+  paths.dmg = path.join(paths.distDir, `${options.realName}.dmg`)
+  paths.ContentsDir = path.join(paths.app, 'Contents')
+  paths.ResourcesDir = path.join(paths.app, 'Contents/Resources')
+  paths.MacOSDir = path.join(paths.app, 'Contents/MacOS')
+  paths.icon = path.join(paths.ResourcesDir, 'app.icns')
   
+  log.info('Building macOS app')
   await module.exports.buildMacApp(options, paths)
+
+  if (formats.includes('app/dmg') || formats.includes('dmg')) {
+    log.info('Building macOS app/dmg')
+    await module.exports.buildMacAppDmg(options, paths)
+  }
 }
 
 module.exports.build = async function(options) {
-  if (options.mac) module.exports.buildMac(options)
+  if (options.mac) await module.exports.buildMac(options)
 }
