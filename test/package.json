@@ -22,10 +22,10 @@
       "icon": "icon.png",
       "category": "public.app-category.utilities",
       "formats": [
-        "app",
         "dmg",
         "zip",
-        "tar.gz"
+        "tar.gz",
+        "app"
       ],
       "darkModeSupport": true,
       "customInfo": {

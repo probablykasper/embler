@@ -68,8 +68,10 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
         'any.recommended.default': 'Recommended property {{#label}} is missing, using default: {{#value}}',
       },
     })
-    for (const warningDetail of vResult.warning.details) {
-      log.warn('Config: ' + warningDetail.message)
+    if (vResult.warning) {
+      for (const warningDetail of vResult.warning.details) {
+        log.warn('Config: ' + warningDetail.message)
+      }
     }
     return vResult.value.pakager
   } catch(err) {
