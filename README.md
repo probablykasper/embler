@@ -6,6 +6,8 @@ Pakager can be used with `pkg` turn a Node.js project into an app, without havin
 
 Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
+<img src="./assets/cli-screencapture.gif">
+
 ## Installation
 ```
 npm install pakager
