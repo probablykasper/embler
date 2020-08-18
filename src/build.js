@@ -10,19 +10,20 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
   const Joi = require('./joi.js').prepare(workingDir)
   const schema = Joi.object({
     name: Joi.string(),
-    version: Joi.string(),
     author: Joi.string(),
+    version: Joi.string(),
     pakager: Joi.object()
       .required()
       .keys({
-        name: Joi.string().default(Joi.ref('/name')),
-        version: Joi.string().default(Joi.ref('/version')),
-        author: Joi.string().default(Joi.ref('/author')),
         realName: Joi.string().default((parent, helpers) => {
-          return helpers.state.ancestors[1].name
+          const value = helpers.state.ancestors[1].name
+          helpers.warn('any.recommended.default', { value })
+          return value
         }),
         appId: Joi.string().default((parent, helpers) => {
-          return 'com.pakager.'+helpers.state.ancestors[1].name
+          const value = 'com.example.'+helpers.state.ancestors[1].name
+          helpers.warn('any.recommended.default', { value })
+          return value
         }),
         copyright: Joi.string().default((parent) => {
           const year = new Date().getFullYear()
@@ -30,17 +31,24 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
         }),
         outputDir: Joi.path().default(path.resolve(workingDir, 'dist')),
         backgroundApp: Joi.bool().default(false),
+        name: Joi.string().default(Joi.ref('/name')),
+        author: Joi.string().default(Joi.ref('/author')),
+        version: Joi.string().default(Joi.ref('/version')),
         mac: Joi.object()
           .required()
           .keys({
             binary: Joi.path().existingFile().required(),
-            category: Joi.string(),
-            dmgBackground: Joi.path().existingFile()
-              .default(path.resolve(__dirname, '../assets/dmg-background.png')),
-            icon: Joi.path().existingFile().endsWith('png', 'icns'),
+            category: Joi.string().default((parent, helpers) => {
+              helpers.warn('any.recommended')
+            }),
+            icon: Joi.path().existingFile().endsWith('png', 'icns').default((parent, helpers) => {
+              helpers.warn('any.recommended')
+            }),
             formats: Joi.array().unique()
               .items('app', 'dmg', 'zip', 'tar.gz')
               .default([ 'app' ]),
+            dmgBackground: Joi.path().existingFile()
+              .default(path.resolve(__dirname, '../assets/dmg-background.png')),
             darkModeSupport: Joi.bool().default(true),
             customInfo: Joi.object().default({}),
           })
@@ -51,14 +59,25 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
     .or('version', 'pakager.version')
 
   try {
-    const vResult = await schema.validateAsync(packageJson, { allowUnknown: true, abortEarly: false })
-    return vResult.pakager
+    const vResult = await schema.validateAsync(packageJson, {
+      allowUnknown: true,
+      abortEarly: false,
+      warnings: true,
+      messages: {
+        'any.recommended': 'Recommended property {{#label}} is missing',
+        'any.recommended.default': 'Recommended property {{#label}} is missing, using default: {{#value}}',
+      },
+    })
+    for (const warningDetail of vResult.warning.details) {
+      log.warn('Config: ' + warningDetail.message)
+    }
+    return vResult.value.pakager
   } catch(err) {
     let errorMsg = ''
     for (const detail of err.details) {
       errorMsg += `\n  - property ${detail.message}`
     }
-    log.err('Invalid package.json config:' + errorMsg)
+    log.err('Invalid config:' + errorMsg)
   }
 }
 
