@@ -57,16 +57,16 @@ npm install pakager
 4. `index.js` is now an app.
 
 
-## API Usage
+### API Usage
 
-### Supply options via `json` file:
+Supply options via `json` file:
 
 ```js
 const pakager = require('pakager')
 await pakager.build('pakager.json')
 ```
 
-### Supply options directly:
+Supply options directly:
 ```js
 const pakager = require('pakager')
 await pakager.build({
