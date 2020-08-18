@@ -153,11 +153,11 @@ await pakager.build({
 
 #### `pakager.mac.customInfo` = `{}`
 - In this object, you may add or overwrite `Info.plist` entries. Example:
-```js
-"customInfo": {
-    "CFBundleDevelopmentRegion": "en"
-}
-```
+    ```js
+    "customInfo": {
+        "CFBundleDevelopmentRegion": "en"
+    }
+    ```
 
 ### Dev Instructions
 
