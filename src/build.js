@@ -122,14 +122,11 @@ module.exports.buildMacApp = async function(options, paths) {
   for (const [key, value] of Object.entries(options.mac.customInfo)) {
     data[key] = value
   }
-  plist.writeFileSync(`${paths.ContentsDir}/Info.plist`, data)
+  plist.writeFileSync(paths.InfoPlist, data)
 
 }
 
 module.exports.buildMacAppDmg = async function(options, paths) {
-
-  // delete existing .dmg
-  await clearOutput('file', paths.dmg)
 
   const appdmg = require('appdmg')
   await new Promise((resolve, reject) => {
@@ -158,27 +155,58 @@ module.exports.buildMacAppDmg = async function(options, paths) {
   })
 }
 
-module.exports.buildMac = async function(options) {
+module.exports.buildMac = async function(options, distDir) {
   const formats = options.mac.formats
 
   const paths = {}
-  paths.distDir = options.outputDir
-  paths.app = path.join(paths.distDir, `${options.realName}.app`)
-  paths.dmg = path.join(paths.distDir, `${options.realName}.dmg`)
-  paths.ContentsDir = path.join(paths.app, 'Contents')
-  paths.ResourcesDir = path.join(paths.app, 'Contents/Resources')
-  paths.MacOSDir = path.join(paths.app, 'Contents/MacOS')
-  paths.icon = path.join(paths.ResourcesDir, 'app.icns')
-  
+  paths.distDir = distDir
+
+  paths.app = paths.distDir+`/${options.realName}.app`
+  paths.appOutput = options.outputDir+`/${options.realName}.app`
+  paths.dmg = paths.distDir+`/${options.realName}.dmg`
+  paths.dmgOutput = options.outputDir+`/${options.realName}.dmg`
+
+  paths.ContentsDir = paths.app+'/Contents'
+  paths.InfoPlist = paths.app+'/Contents/Info.plist'
+  paths.ResourcesDir = paths.app+'/Contents/Resources'
+  paths.MacOSDir = paths.app+'/Contents/MacOS'
+  paths.icon = paths.ResourcesDir+'/app.icns'
+
   log.info('Building macOS app')
   await module.exports.buildMacApp(options, paths)
 
   if (formats.includes('app/dmg') || formats.includes('dmg')) {
     log.info('Building macOS app/dmg')
     await module.exports.buildMacAppDmg(options, paths)
+    await clearOutput('file', paths.dmgOutput)
+    await fs.rename(paths.dmg, paths.dmgOutput)
   }
+
+  if (formats.includes('app')) {
+    await clearOutput('dir', paths.appOutput)
+    await fs.rename(paths.app, paths.appOutput)
+  }
+
 }
 
-module.exports.build = async function(options) {
-  if (options.mac) await module.exports.buildMac(options)
+module.exports.build = async function(options) {  
+  const tempDir = path.join(options.outputDir, '.pakager-temp')
+  await clearOutput('dir', tempDir)
+  
+  let startedCleaning
+  async function cleanTempDir(dontExit) {
+    if (startedCleaning) return
+    startedCleaning = true
+    await clearOutput('dir', tempDir)
+    if (dontExit === 'nodontexit') process.exit()
+  }
+  process.on('exit', cleanTempDir)
+  process.on('SIGINT', cleanTempDir)
+  process.on('SIGTERM', cleanTempDir)
+  process.on('SIGHUP', cleanTempDir)
+  process.on('SIGBREAK', cleanTempDir)
+  
+  await fs.mkdir(tempDir, { recursive: true })
+  if (options.mac) await module.exports.buildMac(options, tempDir)
+  await cleanTempDir('nodontexit')
 }
