@@ -1,10 +1,27 @@
 {
   "name": "pakager",
   "version": "1.0.0",
+  "description": "Turn binaries into applications",
+  "author": {
+    "name": "Kasper Henningsen",
+    "url": "https://kasper.space"
+  },
   "main": "main.js",
   "bin": {
     "pakager": "bin.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probablykasper/pakager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/probablykasper/pakager/issues"
+  },
+  "homepage": "https://github.com/probablykasper/pakager#readme",
+  "keywords": [
+    "packager", "pack", "pkg", "builder", "desktop", "binary",
+    "mac", "macos", "app", "dmg", "zip", "tar.gz"
+  ],
   "license": "MIT",
   "files": [
     "assets",
