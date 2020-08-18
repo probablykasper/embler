@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs').promises
+fs.createWriteStream = require('fs').createWriteStream
 const png2icons = require('png2icons')
 const plist = require('simple-plist')
 
@@ -38,7 +39,7 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
               .default(path.resolve(__dirname, '../assets/dmg-background.png')),
             icon: Joi.path().existingFile().endsWith('png', 'icns'),
             formats: Joi.array().unique()
-              .items('app', 'dmg', 'app/dmg')
+              .items('app', 'dmg', 'zip', 'tar.gz')
               .default([ 'app' ]),
             darkModeSupport: Joi.bool().default(true),
             customInfo: Joi.object().default({}),
@@ -155,6 +156,41 @@ module.exports.buildMacAppDmg = async function(options, paths) {
   })
 }
 
+async function archiver(srcPath, destPath, format, options) {
+  const archiver = require('archiver')
+  const output = fs.createWriteStream(destPath)
+  await new Promise((resolve) => {
+    const archive = archiver(format, options)
+    output.on('close', resolve)
+    output.on('finish', resolve)
+    output.on('warning', (err) => {
+      log.info('FINW')
+      if (err.code === 'ENOENT') log.warn(err)
+      else log.err(err)
+    })
+    output.on('error', (err) => {
+      log.info('FINe')
+      log.err(err)
+    })
+    archive.pipe(output)
+    const root = '/'+path.basename(srcPath)
+    archive.directory(srcPath, root).finalize()
+  })
+}
+
+module.exports.buildMacAppZip = async function(paths) {
+  await archiver(paths.app, paths.zip, 'zip', {
+    zlib: { level: 9 },
+  })
+}
+
+module.exports.buildMacAppTar_gz = async function(paths) {
+  await archiver(paths.app, paths.tar_gz, 'zip', {
+    gzip: true,
+    gzipOptions: { level: 9 },
+  })
+}
+
 module.exports.buildMac = async function(options, distDir) {
   const formats = options.mac.formats
 
@@ -165,6 +201,10 @@ module.exports.buildMac = async function(options, distDir) {
   paths.appOutput = options.outputDir+`/${options.realName}.app`
   paths.dmg = paths.distDir+`/${options.realName}.dmg`
   paths.dmgOutput = options.outputDir+`/${options.realName}.dmg`
+  paths.zip = paths.distDir+`/${options.realName}.zip`
+  paths.zipOutput = options.outputDir+`/${options.realName}.zip`
+  paths.tar_gz = paths.distDir+`/${options.realName}.tar.gz`
+  paths.tar_gzOutput = options.outputDir+`/${options.realName}.tar.gz`
 
   paths.ContentsDir = paths.app+'/Contents'
   paths.InfoPlist = paths.app+'/Contents/Info.plist'
@@ -176,10 +216,24 @@ module.exports.buildMac = async function(options, distDir) {
   await module.exports.buildMacApp(options, paths)
 
   if (formats.includes('app/dmg') || formats.includes('dmg')) {
-    log.info('Building macOS app/dmg')
+    log.info('Building macOS dmg')
     await module.exports.buildMacAppDmg(options, paths)
     await clearOutput('file', paths.dmgOutput)
     await fs.rename(paths.dmg, paths.dmgOutput)
+  }
+
+  if (formats.includes('zip')) {
+    log.info('Building macOS zip')
+    await module.exports.buildMacAppZip(paths)
+    await clearOutput('file', paths.zipOutput)
+    await fs.rename(paths.zip, paths.zipOutput)
+  }
+
+  if (formats.includes('tar.gz')) {
+    log.info('Building macOS tar.gz')
+    await module.exports.buildMacAppTar_gz(paths)
+    await clearOutput('file', paths.tar_gzOutput)
+    await fs.rename(paths.tar_gz, paths.tar_gzOutput)
   }
 
   if (formats.includes('app')) {

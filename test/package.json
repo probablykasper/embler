@@ -23,7 +23,9 @@
       "category": "public.app-category.utilities",
       "formats": [
         "app",
-        "dmg"
+        "dmg",
+        "zip",
+        "tar.gz"
       ],
       "darkModeSupport": true,
       "customInfo": {
