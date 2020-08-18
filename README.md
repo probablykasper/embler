@@ -178,7 +178,10 @@ npm run pack
 ```
 
 ### Publish new version
-1. Bump the version number
+1. Bump the version number. `<version>` can be `patch`, `minor`, `major` or a version number.
+    ```
+    npm version <version>
+    ```
 2. Update CHANGELOG.md
 3. Commit and create git tag
 4. Create GitHub release with release notes
