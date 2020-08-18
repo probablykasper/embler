@@ -5,6 +5,16 @@
   "bin": {
     "pakager": "bin.js"
   },
+  "license": "MIT",
+  "files": [
+    "assets",
+    "src",
+    "main.js",
+    "bin.js",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "appdmg": "^0.6.0",
     "archiver": "^5.0.0",

@@ -7,7 +7,6 @@
     "compile": "pkg . --target macos --output dist/test-bin-macos",
     "pack": "pakager"
   },
-  "license": "ISC",
   "pakager": {
     "name": "menubar-test",
     "version": "1.0.0",
