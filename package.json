@@ -30,6 +30,7 @@
     "bin.js",
     "CHANGELOG.md",
     "README.md",
+    "cli-demo.gif",
     "LICENSE"
   ],
   "dependencies": {
