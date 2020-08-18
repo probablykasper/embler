@@ -7,22 +7,25 @@ Pakager can be used with `pkg` turn a Node.js project into an app, without havin
 Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
 ## Installation
+```
+npm install pakager
+```
 
 ## Usage
 1. Specify options in your `package.json` like so:
     ```js
     {
-        "name": "firefox",
-        "author": "Mozilla",
-        "version": "79.0.0",
+        "name": "affinity-photo",
+        "author": "Serif",
+        "version": "1.7.0",
         "scripts": {
             "build": "pakager",
         },
         "pakager": {
-            "realName": "Firefox",
-            "appId": "org.mozilla.firefox",
+            "realName": "Affinity Photo",
+            "appId": "com.seriflabs.affinityphoto",
             "mac": {
-                "binary": "dist/firefox-mac-bin",
+                "binary": "dist/affinity-photo-mac-bin",
                 "icon": "icon.png",
                 "formats": ["app", "dmg", "zip", "tar.gz"],
             }
@@ -54,6 +57,26 @@ Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
 ## API Usage
 
+### Supply options via `json` file:
+
+```js
+const pakager = require('pakager')
+await pakager.build('pakager.json')
+```
+
+### Supply options directly:
+```js
+const pakager = require('pakager')
+await pakager.build({
+    name: "my-app",
+    author: "kasper.space",
+    version: "2.4.1",
+    pakager: {
+        realName: "My App",
+        // ...
+    }
+})
+```
 
 ## Options
 
