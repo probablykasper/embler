@@ -1,13 +1,14 @@
 # Pakager
 
-Turn a binary into an application.
+Turn binaries into applications.
+
+Pakager can be used with `pkg` turn a Node.js project into an app, without having to resort to Electron. Useful for making a web interface, or a basic menubar app.
+
+Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
 ## Installation
 
-## Supported formats
-- macOS: `app`
-
-## Basic usage
+## Usage
 1. Specify options in your `package.json` like so:
     ```js
     {
@@ -29,6 +30,30 @@ Turn a binary into an application.
     }
     ```
 2. Run `npm run pakager`
+
+### Usage with `pkg`
+1. Run `npm install pkg`
+2. Configure `pkg` and `pakager` to your liking (Usage example above)
+2. Set the `scripts.build`, `bin` and `pakager.mac.binary` properties in your `package.json` like so:
+```js
+{
+    "bin": "index.js",
+    "scripts": {
+        "build": "pkg . --target macos --output dist/test-bin-macos && pakager"
+    },
+    "pakager": {
+        "mac": {
+            "binary": "dist/test-bin-macos"
+        }
+    }
+}
+```
+3. Run `npm run build`
+4. `index.js` is now an app.
+
+
+## API Usage
+
 
 ## Options
 
@@ -106,5 +131,5 @@ Turn a binary into an application.
 ```js
 "customInfo": {
     "CFBundleDevelopmentRegion": "en"
-    }
+}
 ```
