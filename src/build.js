@@ -61,19 +61,27 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
   }
 }
 
-module.exports.buildMacApp = async function(options, paths) {
-  
-  // delete existing .app
+async function clearOutput(type, path) {
   try {
-    const appPathStat = await fs.stat(paths.app)
-    if (appPathStat.isDirectory()) {
-      await fs.rmdir(paths.app, { recursive: true })
+  
+    const pathStat = await fs.stat(path)
+    if (type === 'dir' && pathStat.isDirectory()) {
+      await fs.rmdir(path, { recursive: true })
+    } else if (type === 'file' && pathStat.isFile()) {
+      await fs.unlink(path)
     } else {
-      log.err(`Output path exists, but is not a folder. Delete or move it manually (${paths.app})`)
+      log.err(`Output path exists, but is not a ${type}. Delete or move it manually (${path})`)
     }
+
   } catch(err) {
     if (err.code !== 'ENOENT') log.err(err)
   }
+}
+
+module.exports.buildMacApp = async function(options, paths) {
+  
+  // delete existing .app
+  await clearOutput('dir', paths.app)
 
   // create .app folders
   await fs.mkdir(paths.ResourcesDir, { recursive: true })
@@ -121,16 +129,7 @@ module.exports.buildMacApp = async function(options, paths) {
 module.exports.buildMacAppDmg = async function(options, paths) {
 
   // delete existing .dmg
-  try {
-    const dmgPathStat = await fs.stat(paths.dmg)
-    if (dmgPathStat.isFile()) {
-      await fs.unlink(paths.dmg)
-    } else {
-      log.err(`Output path exists, but is not a file. Delete or move it manually (${paths.dmg})`)
-    }
-  } catch(err) {
-    if (err.code !== 'ENOENT') log.err(err)
-  }
+  await clearOutput('file', paths.dmg)
 
   const appdmg = require('appdmg')
   await new Promise((resolve, reject) => {
