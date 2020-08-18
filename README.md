@@ -158,3 +158,31 @@ await pakager.build({
     "CFBundleDevelopmentRegion": "en"
 }
 ```
+
+### Dev Instructions
+
+### Get started
+1. Install Node.js
+2. Run `npm install`
+3. Set up ESLint support for your code editor
+
+To be able to run/test Pakager:
+4. Go to `./test` (This is where you test Pakager)
+5. Run `npm install`
+6. Run `npm run compile` (Compiles `index.js` to binary)
+
+To test Pakager:
+```
+cd ./test
+npm run pack
+```
+
+### Publish new version
+1. Bump the version number
+2. Update CHANGELOG.md
+3. Commit and create git tag
+4. Create GitHub release with release notes
+5. Publish to npm:
+    ```
+    npm publish
+    ```
