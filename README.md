@@ -34,7 +34,7 @@ npm install pakager
         }
     }
     ```
-2. Run `npm run pakager`
+2. Run `npm run build`
 
 ### Usage with `pkg`
 1. Run `npm install pkg`
