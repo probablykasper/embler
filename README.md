@@ -167,6 +167,7 @@ await embler.build({
 3. Set up ESLint support for your code editor
 
 To be able to run/test Embler:
+
 4. Go to `./test` (This is where you test Embler)
 5. Run `npm install`
 6. Run `npm run compile` (Compiles `index.js` to binary)
