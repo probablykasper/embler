@@ -12,7 +12,7 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
     name: Joi.string(),
     author: Joi.string(),
     version: Joi.string(),
-    pakager: Joi.object()
+    embler: Joi.object()
       .required()
       .keys({
         realName: Joi.string().default((parent, helpers) => {
@@ -54,9 +54,9 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
           })
       })
   })
-    .or('name', 'pakager.name')
-    .or('author', 'pakager.author')
-    .or('version', 'pakager.version')
+    .or('name', 'embler.name')
+    .or('author', 'embler.author')
+    .or('version', 'embler.version')
 
   try {
     const vResult = await schema.validateAsync(packageJson, {
@@ -73,7 +73,7 @@ module.exports.parseOptions = async function(packageJson, workingDir) {
         log.warn('Config: ' + warningDetail.message)
       }
     }
-    return vResult.value.pakager
+    return vResult.value.embler
   } catch(err) {
     let errorMsg = ''
     for (const detail of err.details) {
@@ -265,7 +265,7 @@ module.exports.buildMac = async function(options, distDir) {
 }
 
 module.exports.build = async function(options) {  
-  const tempDir = path.join(options.outputDir, '.pakager-temp')
+  const tempDir = path.join(options.outputDir, '.embler-temp')
   await clearOutput('dir', tempDir)
   
   let startedCleaning

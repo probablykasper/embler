@@ -3,11 +3,11 @@
   "bin": "index.js",
   "scripts": {
     "lint": "eslint",
-    "build": "pkg . --target macos --output dist/test-bin-macos && pakager",
+    "build": "pkg . --target macos --output dist/test-bin-macos && embler",
     "compile": "pkg . --target macos --output dist/test-bin-macos",
-    "pack": "pakager"
+    "pack": "embler"
   },
-  "pakager": {
+  "embler": {
     "name": "menubar-test",
     "version": "1.0.0",
     "author": "kasper.space",
@@ -36,7 +36,7 @@
     "systray": "^1.0.5"
   },
   "devDependencies": {
-    "pakager": "file:..",
+    "Embler": "file:..",
     "pkg": "^4.4.9"
   }
 }

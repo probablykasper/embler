@@ -19,7 +19,7 @@ function getOptionsFromFile(packageJsonPath) {
 }
 
 async function start(options) {
-  log.info('Pakager ' + version)
+  log.info('Embler ' + version)
 
   let workingDir = process.cwd()
 

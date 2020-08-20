@@ -1,8 +1,8 @@
-# Pakager
+# Embler
 
 Turn binaries into applications.
 
-Pakager can be used with `pkg` turn a Node.js project into an app, without having to resort to Electron. Useful for making a web interface, or a basic menubar app.
+Embler can be used with `pkg` turn a Node.js project into an app, without having to resort to Electron. Useful for making a web interface, or a basic menubar app.
 
 Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
@@ -10,7 +10,7 @@ Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
 ## Installation
 ```
-npm install pakager
+npm install embler
 ```
 
 ## Usage
@@ -21,9 +21,9 @@ npm install pakager
         "author": "Serif",
         "version": "1.7.0",
         "scripts": {
-            "build": "pakager",
+            "build": "embler",
         },
-        "pakager": {
+        "embler": {
             "realName": "Affinity Photo",
             "appId": "com.seriflabs.affinityphoto",
             "mac": {
@@ -38,15 +38,15 @@ npm install pakager
 
 ### Usage with `pkg`
 1. Run `npm install pkg`
-2. Configure `pkg` and `pakager` to your liking (Usage example above)
-2. Set the `scripts.build`, `bin` and `pakager.mac.binary` properties in your `package.json` like so:
+2. Configure `pkg` and `embler` to your liking (Usage example above)
+2. Set the `scripts.build`, `bin` and `embler.mac.binary` properties in your `package.json` like so:
 ```js
 {
     "bin": "index.js",
     "scripts": {
-        "build": "pkg . --target macos --output dist/test-bin-macos && pakager"
+        "build": "pkg . --target macos --output dist/test-bin-macos && embler"
     },
-    "pakager": {
+    "embler": {
         "mac": {
             "binary": "dist/test-bin-macos"
         }
@@ -62,18 +62,18 @@ npm install pakager
 Supply options via `json` file:
 
 ```js
-const pakager = require('pakager')
-await pakager.build('pakager.json')
+const embler = require('embler')
+await embler.build('embler.json')
 ```
 
 Supply options directly:
 ```js
-const pakager = require('pakager')
-await pakager.build({
+const embler = require('embler')
+await embler.build({
     name: "my-app",
     author: "kasper.space",
     version: "2.4.1",
-    pakager: {
+    embler: {
         realName: "My App",
         // ...
     }
@@ -83,75 +83,75 @@ await pakager.build({
 ## Options
 
 ### `name`
-- **Required unless `pakager.name` is specified**
+- **Required unless `embler.name` is specified**
 - The app's name. For example used for the app's process name
 - Recommended to not use spaces or non-basic special characters
 
 ### `author`
-- **Required unless `pakager.author` is specified**
+- **Required unless `embler.author` is specified**
 - The app's author
 
 ### `version`
-- **Required unless `pakager.version` is specified**
+- **Required unless `embler.version` is specified**
 - The version of the app
 
-### `pakager.realName` = `"${name}"`
+### `embler.realName` = `"${name}"`
 - *Recommended*
 - The app's name. This is the name users will see
 - Spaces and special characters are allowed in this one
 
-### `pakager.appId` = `"com.example.${name}"`
+### `embler.appId` = `"com.example.${name}"`
 - *Recommended*
 - The application id
 
-### `pakager.copyright` = `"Copyright © year ${author}"`
+### `embler.copyright` = `"Copyright © year ${author}"`
 - Human-readable copyright line
 
-### `pakager.outputDir` = `"dist"`
+### `embler.outputDir` = `"dist"`
 - The output folder
 
-### `pakager.backgroundApp` = `false`
+### `embler.backgroundApp` = `false`
 - Whether the app will just run in the background app. On macOS, it won't show up in the Dock
 
-### `pakager.name`
+### `embler.name`
 - Overrides `name`
 
-### `pakager.author`
+### `embler.author`
 - Overrides `author`
 
-### `pakager.version`
+### `embler.version`
 - Overrides `version`
 
-### `pakager.mac`
+### `embler.mac`
 - Object which contains macOS-specific options
 
-#### `pakager.mac.binary`
+#### `embler.mac.binary`
 - **Required**
 - Path to the binary which will run when the app is opened
 
-#### `pakager.mac.category`
+#### `embler.mac.category`
 - *Recommended*
 - The app's category. Shown in `/Applications` in Finder when `View > Use Groups` is enabled using `View > Sort By > Application Category`
 - Valid categories are listed in [Apple's documentation](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html#//apple_ref/doc/uid/TP40009250-SW8)
 
-#### `pakager.mac.icon`
+#### `embler.mac.icon`
 - *Recommended*
 - Path to your app's icon
 - `.icns` or `.png`
 
-#### `pakager.mac.formats` = `["app"]`
+#### `embler.mac.formats` = `["app"]`
 - Array of the formats Pakaer will output
 - Supports `app`, `dmg`, `zip` and `tar.gz`. Creating `dmg` requires macOS
 
-#### `pakager.mac.dmgBackground`
+#### `embler.mac.dmgBackground`
 - Path to a custom background image for the `dmg`
 - The resolution should be 660x400
 - To support retina displays, have an extra image at double resolution that ends with `@2x`. For example, you could have `dmgbg.png` and `dmgbg@2x.png`
 
-#### `pakager.mac.darkModeSupport` = `true`
+#### `embler.mac.darkModeSupport` = `true`
 - Turn this to false to disable dark mode support.
 
-#### `pakager.mac.customInfo` = `{}`
+#### `embler.mac.customInfo` = `{}`
 - In this object, you may add or overwrite `Info.plist` entries. Example:
     ```js
     "customInfo": {
@@ -166,12 +166,12 @@ await pakager.build({
 2. Run `npm install`
 3. Set up ESLint support for your code editor
 
-To be able to run/test Pakager:
-4. Go to `./test` (This is where you test Pakager)
+To be able to run/test Embler:
+4. Go to `./test` (This is where you test Embler)
 5. Run `npm install`
 6. Run `npm run compile` (Compiles `index.js` to binary)
 
-To test Pakager:
+To test Embler:
 ```
 cd ./test
 npm run pack

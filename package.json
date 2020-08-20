@@ -1,5 +1,5 @@
 {
-  "name": "pakager",
+  "name": "embler",
   "version": "1.0.0",
   "description": "Turn binaries into applications",
   "author": {
@@ -8,20 +8,16 @@
   },
   "main": "main.js",
   "bin": {
-    "pakager": "bin.js"
+    "embler": "bin.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/probablykasper/pakager.git"
+    "url": "git+https://github.com/probablykasper/embler.git"
   },
   "bugs": {
-    "url": "https://github.com/probablykasper/pakager/issues"
+    "url": "https://github.com/probablykasper/embler/issues"
   },
-  "homepage": "https://github.com/probablykasper/pakager#readme",
-  "keywords": [
-    "packager", "pack", "pkg", "builder", "desktop", "binary",
-    "mac", "macos", "app", "dmg", "zip", "tar.gz"
-  ],
+  "homepage": "https://github.com/probablykasper/embler#readme",
   "license": "MIT",
   "files": [
     "assets",
@@ -44,5 +40,19 @@
   },
   "devDependencies": {
     "eslint": "^7.7.0"
-  }
+  },
+  "keywords": [
+    "packager",
+    "pack",
+    "pkg",
+    "builder",
+    "desktop",
+    "binary",
+    "mac",
+    "macos",
+    "app",
+    "dmg",
+    "zip",
+    "tar.gz"
+  ]
 }
