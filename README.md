@@ -179,7 +179,7 @@ npm run pack
 
 ### Publish new version
 1. Update CHANGELOG.md
-2. Bump the version number and commit/tag. `<version>` can be `patch`, `minor`, `major` or a version number.
+2. Bump the version number, commit and tag:
     ```
     npm version <version>
     ```
