@@ -184,8 +184,8 @@ npm run pack
     ```
     npm version <version>
     ```
-5. Publish to npm:
+3. Publish to npm:
     ```
     npm publish
     ```
-6. Create GitHub release with release notes
+4. Create GitHub release with release notes
