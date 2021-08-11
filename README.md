@@ -2,7 +2,7 @@
 
 Turn binaries into applications.
 
-Embler can be used with `pkg` turn a Node.js project into an app, without having to resort to Electron. Useful for making a web interface, or a basic menubar app.
+Embler can be used with `pkg` to turn a Node.js project into an app, without having to resort to Electron. Useful for making a web interface, or a basic menubar app.
 
 Supports macOS `app`, `dmg`, `zip` and `tar.gz`. `dmg` requires macOS
 
